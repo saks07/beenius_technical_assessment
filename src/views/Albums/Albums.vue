@@ -8,7 +8,7 @@
 import Albums from '@/components/Albums/Albums.vue'
 
 export default {
-    name: 'Albums',
+    name: 'AlbumsView',
     components: {
         Albums
     }

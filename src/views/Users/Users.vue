@@ -8,7 +8,7 @@
 import Users from '@/components/Users/Users.vue'
 
 export default {
-    name: 'Users',
+    name: 'UsersView',
     components: {
         Users
     }

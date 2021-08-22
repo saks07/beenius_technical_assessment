@@ -9,22 +9,26 @@ const actions = {
         return Promise.all(
             users.map( async user => {
                 // GET USER ALBUMS
-                const albumsPromise = await dispatch('ACTION_ALBUMS_PROMISE', { userId: user.id });
+                const albumsData = await dispatch('ACTION_ALBUMS_PROMISE', { userId: user.id });
+
+                user.albumsIds = albumsData.data.map( item => item.id );
 
                 // GENERATE RANDOM NUMBER BETWEEN ZERO AND THE NUMBER OF ALBUMS
-                const randomAlbumPhotoId = Math.floor( Math.random() * albumsPromise.data.length );
+                const randomAlbumPhotoId = Math.floor( Math.random() * albumsData.data.length );
 
                 // STORE RANDOM USER ALBUM
-                const randomAlbum = albumsPromise.data[randomAlbumPhotoId];
+                const randomAlbum = albumsData.data[randomAlbumPhotoId];
 
                 // GET PHOTOS FROM RANDOM USER ALBUM
-                const photosPromise = await dispatch('ACTION_PHOTOS_PROMISE', { albumId: randomAlbum.id });
+                const photosData = await dispatch('ACTION_PHOTOS_PROMISE', { albumId: randomAlbum.id });
+
+                user.photosIds = photosData.data.map( item => item.id );
 
                 // GENERATE RANDOM NUMBER BETWEEN ZERO AND THE NUMBER OF PHOTOS
-                const randomPhotoId = Math.floor( Math.random() * photosPromise.data.length );
+                const randomPhotoId = Math.floor( Math.random() * photosData.data.length );
 
                 // STORE RANDOM USER PHOTO
-                user.photo = photosPromise.data[randomPhotoId];
+                user.photo = photosData.data[randomPhotoId];
 
                 return user;
             })
@@ -35,8 +39,8 @@ const actions = {
             loading: true
         });
         try {
-            const promiseUsers = await dispatch('ACTION_USERS_PROMISE');
-            const usersWithPhotos = await dispatch('ACTION_MAP_USERS', promiseUsers.data);
+            const usersData = await dispatch('ACTION_USERS_PROMISE');
+            const usersWithPhotos = await dispatch('ACTION_MAP_USERS', usersData.data);
 
             commit('MUTATION_USERS_LOADING', {
                 loading: false

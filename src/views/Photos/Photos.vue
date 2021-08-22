@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container photos-container">
         <Photos />
     </div>
 </template>
@@ -8,7 +8,7 @@
 import Photos from '@/components/Photos/Photos.vue'
 
 export default {
-    name: 'Photos',
+    name: 'PhotosView',
     components: {
         Photos
     }

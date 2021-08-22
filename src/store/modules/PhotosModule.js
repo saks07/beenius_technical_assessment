@@ -15,12 +15,12 @@ const actions = {
             loading: true
         });
         try {
-            const promisePhotos = await dispatch('ACTION_PHOTOS_PROMISE', payload);
+            const photosData = await dispatch('ACTION_PHOTOS_PROMISE', payload);
             commit('MUTATION_PHOTOS_LOADING', {
                 loading: false
             });
             commit('MUTATION_PHOTOS', {
-                photos: promisePhotos.data
+                photos: photosData.data
             });
         } catch(error) {
             commit('MUTATION_PHOTOS_LOADING', {
@@ -34,18 +34,23 @@ const actions = {
             loading: true
         });
         try {
-            const promisePhotos = await dispatch('ACTION_PHOTOS_PROMISE', payload);
-            const promiseAlbums = await dispatch('ACTION_ALBUMS_PROMISE', { id: promisePhotos.data[0].albumId });
-            const promiseUsers = await dispatch('ACTION_USERS_PROMISE', { id: promiseAlbums.data[0].userId });
+            // GET PHOTO
+            const photoData = await dispatch('ACTION_PHOTOS_PROMISE', payload);
+
+            // GET PHOTO ALBUM
+            const albumsData = await dispatch('ACTION_ALBUMS_PROMISE', { id: photoData.data[0].albumId });
+
+            // GET ALBUM USER
+            const usersData = await dispatch('ACTION_USERS_PROMISE', { id: albumsData.data[0].userId });
 
             commit('MUTATION_PHOTO_LOADING', {
                 loading: false
             });
             commit('MUTATION_PHOTO', {
                 photoData: {
-                    photo: promisePhotos.data[0],
-                    album: promiseAlbums.data[0],
-                    user: promiseUsers.data[0]
+                    photo: photoData.data[0],
+                    album: albumsData.data[0],
+                    user: usersData.data[0]
                 }
             });
 

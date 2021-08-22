@@ -19,8 +19,8 @@ const actions = {
             loading: true
         });
         try {
-            const promiseAlbums = await dispatch('ACTION_ALBUMS_PROMISE', payload);
-            const albumsWithPhotos = await dispatch('ACTION_MAP_ALBUMS', promiseAlbums.data);
+            const albumsData = await dispatch('ACTION_ALBUMS_PROMISE', payload);
+            const albumsWithPhotos = await dispatch('ACTION_MAP_ALBUMS', albumsData.data);
             commit('MUTATION_ALBUMS_LOADING', {
                 loading: false
             });
