@@ -1,7 +1,7 @@
 <template>
     <div class="wrapper">
         <ComponentLoader v-if="usersLoading" v-bind:content="'users'" />
-        <ComponentError v-if="!usersData" v-bind:content="'users'" />
+        <ComponentError v-else-if="!usersData" v-bind:content="'users'" />
         <ul v-else class="users-list">
             <li v-for="user in usersData" v-bind:key="`user-${user.id}`" class="user-item">
                 <UserItem v-bind:user="user" />

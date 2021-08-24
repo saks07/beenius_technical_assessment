@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import UsersView from '@/views/Users/Users.vue'
+import AlbumsMain from '@/views/Albums/AlbumsMain.vue'
 import AlbumsView from '@/views/Albums/Albums.vue'
 import PhotosMain from '@/views/Photos/PhotosMain.vue'
 import PhotosView from '@/views/Photos/Photos.vue'
@@ -18,11 +19,25 @@ const routes = [
 		}
 	},
 	{
-		path: '/albums/:user?',
-		name: 'AlbumsView',
-		component: AlbumsView,
+		path: '/albums',
+		name: 'AlbumsMain',
+		component: AlbumsMain,
+		children: [
+			{
+				path: '/albums/:user?',
+				name: 'AlbumsView',
+				component: AlbumsView,
+				meta: {
+					breadcrumb() {
+						const { params } = this.$route;
+						const label = params.user ? params.user.replace(/\-/g, ' ') : '';
+						return { label: label, parent: 'Albums' }
+					}
+				}
+			}
+		],
 		meta: {
-			breadcrumb: routeParams => `Albums / ${routeParams.user.replace(/\-/g, ' ')}`
+			breadcrumb: 'Albums'
 		}
 	},
 	{
@@ -35,7 +50,10 @@ const routes = [
 				name: 'PhotosView',
 				component: PhotosView,
 				meta: {
-					breadcrumb: routeParams => routeParams.title.replace(/\-/g, ' ')
+					breadcrumb: {
+						label: '',
+						parent: 'Photos'
+					}
 				}
 			},
 			{
@@ -43,7 +61,11 @@ const routes = [
 				name: 'PhotoView',
 				component: PhotoView,
 				meta: {
-					breadcrumb: routeParams => `Photo / ${routeParams.title.replace(/\-/g, ' ')}`
+					breadcrumb() {
+						const { params } = this.$route;
+						const label = params.title ? params.title.replace(/\-/g, ' ') : '';
+						return { label: label, parent: 'Photos' }
+					}
 				}
 			}
 		],

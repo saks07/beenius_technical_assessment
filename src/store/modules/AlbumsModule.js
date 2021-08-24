@@ -8,8 +8,8 @@ const actions = {
         if( !albums.length ) return [];
         return Promise.all(
             albums.map( async album => {
-                const photosPromise = await dispatch('ACTION_PHOTOS_PROMISE', { albumId: album.id });
-                album.photos = photosPromise.data.slice(0, 4);
+                const photosData = await dispatch('ACTION_PHOTOS_PROMISE', { albumId: album.id });
+                album.photos = photosData.data.slice(0, 4);
                 return album;
             })
         );

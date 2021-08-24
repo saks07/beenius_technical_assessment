@@ -1,16 +1,22 @@
 <template>
 	<div id="app" v-bind:class="{ 'app-navigation-closed': !navigationShow }">
-		<Navigation v-if="navigationShow" />
 		<main>
 			<div v-if="!navigationShow" class="open-navigation-container">
-				<button v-bind:class="['open-navigation', 'app-button']" v-on:click="openNavigation"><font-awesome-icon v-bind:icon="['fas', 'bars']" /></button>
+				<button v-bind:class="['open-navigation', 'app-button']" v-on:click="openHideNavigation('show')"><font-awesome-icon v-bind:icon="['fas', 'bars']" /></button>
 			</div>
 			<div class="breadcrumbs-contanainer">
-				<font-awesome-icon v-bind:icon="['fas', 'bread-slice']" />
-				<Breadcrumbs />
+				<div class="left">
+					<font-awesome-icon v-bind:icon="['fas', 'bread-slice']" />
+					<Breadcrumbs />
+				</div>
+				<div v-if="$route.name !== 'UsersView' && $route.name !== 'PhotoView'" class="right">
+					<button class="app-button" v-on:click="closeCurrentRoute"><font-awesome-icon v-bind:icon="['fas', 'times']" /></button>
+				</div>
 			</div>
 			<router-view />
 		</main>
+		<div v-if="navigationShow && isMobile" class="navigation-overlay" v-on:click="openHideNavigation('hide')"></div>
+		<Navigation v-if="navigationShow" />
 	</div>
 </template>
 
@@ -24,20 +30,27 @@ export default {
 	},
 	data() {
 		return {
-			navigationShow: true
+			navigationShow: true,
+			isMobile: false
 		}
 	},
 	methods: {
-		openNavigation() {
+		openHideNavigation(action) {
+			if( action === 'hide' ) {
+				this.navigationShow = false;
+				this.localStorageItem('set', 'navigationClosed', true);
+				return;
+			}
+
 			this.navigationShow = true;
 			this.localStorageItem('', 'navigationClosed');
 		},
 		windowResizeEvent(event) {
-			if( window.innerWidth <= 1024 ) {
-				if( this.localStorageItem('get', 'navigationClosed') ) return;
-				this.navigationShow = false;
-				this.localStorageItem('set', 'navigationClosed', true);
-			}
+			this.isMobile = window.innerWidth <= 1024;
+			if( !this.isMobile ) return; 
+			if( this.localStorageItem('get', 'navigationClosed') ) return;
+			this.navigationShow = false;
+			this.localStorageItem('set', 'navigationClosed', true);
 		},
 		localStorageItem(action, key, value = null) {
 			if( action === 'set' ) {
@@ -50,17 +63,24 @@ export default {
 			}
 
 			localStorage.removeItem(key);
+		},
+		closeCurrentRoute() {
+			this.$router.go(-1);
 		}
 	},
 	created() {
+		this.windowResizeEvent();
+
 		// CHECK IF NAVIGATION IS CLOSED ON APP LOAD
 		const checkNavigationDisplay = this.localStorageItem('get', 'navigationClosed');
 		this.navigationShow = checkNavigationDisplay && JSON.parse(checkNavigationDisplay) ? false : true;
 
 		// RECEIVE EVENT FROM NAVIGATION COMPONENT FOR CLOSING NAVIGATION
-		this.$root.$on('nav', event => {
-			this.navigationShow = !event.closed;
-			if( event.closed ) this.localStorageItem('set', 'navigationClosed', true);
+		this.$root.$on('navigationMessage', message => {
+			if( message ) {
+				this.navigationShow = !message.closed;
+				if( message.closed ) this.localStorageItem('set', 'navigationClosed', true);
+			}
 		});
 
 		// WINDOW RESIZE EVENT
@@ -82,7 +102,6 @@ export default {
 	--main-background-color: var(--color-white);
 	--alt-background-color: var(--color-offwhite);
 	--font-size-default: 16px;
-	--breadcrumbs-height: 20px;
 }
 
 * {
@@ -174,12 +193,23 @@ main {
 	margin: 40px 0 30px;
 	font-weight: 600;
 	display: flex;
-	justify-content: flex-start;
-	height: var(--breadcrumbs-height);
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
 }
 
-.breadcrumbs-contanainer svg {
-	margin: 0 10px 0 0;
+.left,
+.right
+{
+	display: flex;
+}
+
+.right {
+	justify-content: flex-end;
+}
+
+.breadcrumbs-contanainer .left svg {
+	margin: 0 5px 0 0;
 }
 
 ol.breadcrumb {
@@ -206,6 +236,21 @@ ol.breadcrumb {
 	position: relative;
 	width: 100%;
 	padding: 20px 40px 0;
+}
+
+.navigation-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.5);
+}
+
+@media ( max-width: 1024px ) {
+    #app {
+		--navigation-width: 0;
+	}
 }
 
 </style>

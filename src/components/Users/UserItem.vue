@@ -8,7 +8,7 @@
         <div class="user-photo-container">
             <img class="user-photo" v-bind:src="user.photo.thumbnailUrl" alt="">
         </div>
-        <router-link class="user-link" v-bind:to="{ path: `/albums/${user.username}`, query: { uid: user.id } }"></router-link>
+        <router-link class="user-link" v-bind:to="{ path: `/albums/${user.username.replace(/[\_\.]+/g, '-').toLowerCase()}`, query: { uid: user.id } }"></router-link>
     </div>
 </template>
 

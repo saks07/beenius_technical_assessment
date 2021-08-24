@@ -5,7 +5,7 @@
         </div>
         <ul class="navigation-list">
             <li v-for="item in navigation" v-bind:key="item.key" class="navigation-item">
-                <router-link class="navigation-link" v-bind:to="`${item.path}`">
+                <router-link class="navigation-link" v-bind:to="item.path">
                     <font-awesome-icon v-bind:icon="['fas', item.icon]" />{{ item.label }}
                 </router-link>
             </li>
@@ -25,7 +25,7 @@ export default {
     },
     methods: {
         closeNavigation() {
-            this.$root.$emit('nav', { closed: true });
+            this.$root.$emit('navigationMessage', { closed: true });
         }
     },
     created() {
@@ -77,6 +77,13 @@ export default {
     min-width: 24px;
     display: inline-block;
     margin: 0 5px 0 0;
+}
+
+@media ( max-width: 1024px ) {
+    .navigation {
+        min-width: 250px;
+        max-width: 250px;
+    }
 }
 
 </style>

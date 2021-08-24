@@ -11,7 +11,7 @@ const functions = {
             }
         };
         if( headers ) options.headers = { ...options.headers, ...headers };
-        if( data ) {
+        if( data && Object.keys(data).length ) {
             let key = 'params';
             if( method === 'post' ) key = 'data';
             options[key] = { ...data };

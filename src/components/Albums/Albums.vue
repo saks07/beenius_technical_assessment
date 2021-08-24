@@ -1,7 +1,7 @@
 <template>
     <div class="wrapper">
         <ComponentLoader v-if="albumsLoading" v-bind:content="'albums'" />
-        <ComponentError v-if="!albumsData || !this.$route.params.user || !this.$route.query.uid" v-bind:content="'albums'" />
+        <ComponentError v-else-if="!albumsData" v-bind:content="'albums'" />
         <ul v-else class="albums-list">
             <li v-for="album in albumsData" v-bind:key="`album-${album.id}`" class="album-item">
                 <AlbumItem v-bind:album="album" />
@@ -25,8 +25,14 @@ export default {
     },
     data() {
         return {
-            payload: {
-                userId: 0
+            payload: {}
+        }
+    },
+    watch: {
+        '$route'(url) {
+            if( !url.params.user ) {
+                this.payload = {};
+                this.ACTION_ALBUMS(this.payload);
             }
         }
     },
@@ -34,13 +40,9 @@ export default {
         ...mapActions(['ACTION_ALBUMS'])
     },
     created() {
-        // REDIRECT TO USERS PAGE IF PARAMETERS FOR LOADING THE COMPONENT DATA ARE MISSING
-        if( !this.$route.params.user || !this.$route.query.uid ) {
-            this.$router.push({ path: '/' });
-            return;
+        if( this.$route.query.uid ) {
+            this.payload.userId = this.$route.query.uid;
         }
-        
-        this.payload.userId = this.$route.query.uid;
         this.ACTION_ALBUMS(this.payload);
     },
     computed: {
