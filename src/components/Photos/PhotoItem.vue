@@ -38,7 +38,7 @@ export default {
         }
     },
     methods: {
-        showDetails(event) {
+        showDetails() {
             this.details.show = !this.details.show;
             this.details.buttonIcon = this.details.show ? 'times' : 'ellipsis-h';
         }

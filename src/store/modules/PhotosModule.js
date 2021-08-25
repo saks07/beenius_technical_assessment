@@ -1,6 +1,7 @@
 const state = {
     photosLoading: false,
     photosData: null,
+    photosPages: 0,
     photoLoading: false,
     photoData: {
         photo: null,
@@ -15,12 +16,19 @@ const actions = {
             loading: true
         });
         try {
-            const photosData = await dispatch('ACTION_PHOTOS_PROMISE', payload);
+            // GET ALL PHOTOS COUNT FOR PAGINATION
+            const photosCount = await dispatch('ACTION_PHOTOS_PROMISE', payload.count);
+
+            // GET PAGINATED PHOTOS
+            const photosData = await dispatch('ACTION_PHOTOS_PROMISE', payload.results);
+
             commit('MUTATION_PHOTOS_LOADING', {
                 loading: false
             });
             commit('MUTATION_PHOTOS', {
-                photos: photosData.data
+                photos: photosData.data,
+                count: photosCount.data.length,
+                limit: payload.results._limit
             });
         } catch(error) {
             commit('MUTATION_PHOTOS_LOADING', {
@@ -67,8 +75,9 @@ const mutations = {
     MUTATION_PHOTOS_LOADING: (state, { loading }) => {
         state.photosLoading = loading;
     },
-    MUTATION_PHOTOS: (state, { photos }) => {
+    MUTATION_PHOTOS: (state, { photos, count, limit }) => {
         state.photosData = photos;
+        state.photosPages = Math.ceil( count / limit );
     },
     MUTATION_PHOTO_LOADING: (state, { loading }) => {
         state.photoLoading = loading;
@@ -84,6 +93,9 @@ const getters = {
     },
     photosData: state => {
         return state.photosData;
+    },
+    photosPages: state => {
+        return state.photosPages;
     },
     photoLoading: state => {
         return state.photoLoading;

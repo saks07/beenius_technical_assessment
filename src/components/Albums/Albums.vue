@@ -7,6 +7,7 @@
                 <AlbumItem v-bind:album="album" />
             </li>
         </ul>
+        <PaginationComponent v-if="albumsPages > 1" v-bind:pages="albumsPages" />
     </div>
 </template>
 
@@ -15,38 +16,69 @@ import { mapActions, mapGetters } from 'vuex'
 import ComponentLoader from '@/components/ComponentLoader'
 import AlbumItem from './AlbumItem'
 import ComponentError from '@/components/ComponentError'
+import PaginationComponent from '@/components/PaginationComponent'
 
 export default {
     name: 'Albums',
     components: {
         ComponentLoader,
         AlbumItem,
-        ComponentError
+        ComponentError,
+        PaginationComponent
     },
     data() {
         return {
-            payload: {}
+            payload: {
+                count: {},
+                results: {
+                    _page: 1,
+                    _limit: 10
+                }
+            }
         }
     },
     watch: {
         '$route'(url) {
-            if( !url.params.user ) {
-                this.payload = {};
-                this.ACTION_ALBUMS(this.payload);
-            }
+            this.payload = {
+                count: {},
+                results: {
+                    _page: 1,
+                    _limit: 10
+                }
+            };
+
+            this.setPayload(url);
+
+            this.ACTION_ALBUMS(this.payload);
         }
     },
     methods: {
-        ...mapActions(['ACTION_ALBUMS'])
+        ...mapActions(['ACTION_ALBUMS']),
+        setPayload(route) {
+            const { uid, page } = route.query;
+            if( uid ) {
+                this.payload.count.userId = uid;
+                this.payload.results.userId = uid;
+            }
+            if( page ) this.payload.results._page = page;
+        }
     },
     created() {
-        if( this.$route.query.uid ) {
-            this.payload.userId = this.$route.query.uid;
+        if( this.$route.query.uid || this.$route.query.page ) {
+            this.setPayload(this.$route);
         }
+
         this.ACTION_ALBUMS(this.payload);
+
+        this.$root.$on('changePage', message => {
+            let routePath = { path: this.$route.path, query: { ...this.$route.query } };
+            if( message.pageNumber > 1 ) routePath.query = { ...routePath.query, page: message.pageNumber };
+            else delete routePath.query.page;
+            this.$router.replace(routePath);
+        });
     },
     computed: {
-        ...mapGetters(['albumsLoading', 'albumsData'])
+        ...mapGetters(['albumsLoading', 'albumsData', 'albumsPages'])
     }
 }
 </script>
